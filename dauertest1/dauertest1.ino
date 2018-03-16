@@ -1,4 +1,7 @@
 #include <Filters.h>
+//#include "Plotter.h"
+
+//Plotter p;
 
 const byte motorPin1 = 8;
 const byte motorPin2 = 9;
@@ -19,13 +22,19 @@ float e=2.71;
 int   current=0;
 int   pos = 0;
 
+int filtered=0;
+int val;
 
 volatile unsigned long current_time = 0;
 long previous_time = 0;
-volatile unsigned long duration;
+unsigned long duration;
 
 void setup() { 
-  Serial.begin(19200);
+  Serial.begin(115200);
+  
+  //p = Plotter();
+  //p.AddTimeGraph( "graph", 1000, "filtered", filtered, "raw duration", duration, "position", val );
+  
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
@@ -48,25 +57,28 @@ void turn(int fullsteps, bool ccw)
   for(int n=0; n<fullsteps; n++)
   {
     //Serial.print("n: ");
-    //Serial.print(n);
+    //Serial.print(n); 
     //Serial.print("\n");
     delayTime = 1000000/(3*fz);
-    ///   jede schleife entspricht 2 fullsteps (2° / 4 pi)
+    ///   jede schleife entspricht 2 degree (2° / 4 pi)
     for(int k=5; k>=0; k--)
     {               
-      a = 1 & (56 >> abs(5*ccw - k)); ///00111000 >> k 
-      b = 1 & (14 >> abs(5*ccw - k)); ///00011100 >> k
-      c = 1 & (35 >> abs(5*ccw - k)); ///00111000 >> k 
-                                      ///ccw := counterclockwise
+      a = 1 & (0x38 >> abs(5*ccw - k)); ///00111000 >> k 
+      b = 1 & (0x0E >> abs(5*ccw - k)); ///00011100 >> k
+      c = 1 & (0x23 >> abs(5*ccw - k)); ///00111000 >> k 
+                                        ///ccw := counterclockwise
       digitalWrite(motorPin1, a);
       digitalWrite(motorPin2, b);
       digitalWrite(motorPin3, b);
       digitalWrite(motorPin4, c);
       delayMicroseconds(delayTime);
     }
-  /// fz berechnen
-  if(n < fullsteps/2)         { fz = fz + e*fz/pow(n+2,2);  }
-  else if(n >= fullsteps/2)   { fz = fz - e*fz/pow(fullsteps-n+2,2);  }
+    /// fz berechnen
+    if(n < fullsteps/2)         { fz = fz + e*fz/pow(n+2,2);  }
+    else if(n >= fullsteps/2)   { fz = fz - e*fz/pow(fullsteps-n+2,2);  }
+
+    Serial.print(fz);
+    Serial.print("\n");
   }
 }
 
@@ -79,46 +91,53 @@ void position(int future)
    else                 {  }  
 }
 
-int val;
 
-float filterfq = 5;
+
+float filterfq = 2;
 FilterOnePole lowpassFilter(LOWPASS, filterfq);
 
 void loop() 
 {
-  
+/*
   if ((duration > 300) && (duration < 11000))
   {
-    int filtered = lowpassFilter.input( duration );
+    filtered = lowpassFilter.input( duration );
     if (filtered > 900) {    val = 113940/filtered; }
     //Serial.print(duration);
     //Serial.print("\n");
-    Serial.print(val*1000);
-    Serial.print("\t"); 
-    Serial.println(filtered);
+    //Serial.print(val*1000);
+    //Serial.print("\t"); 
+    //Serial.println(filtered);
     position(val); 
   }
-  
-  //delay(100);
-  //position(45);
-  //position(46);
-  //int rndm = random(1,40);
-  //int pos1=70+rndm;
-  //int pos2=70-rndm;
-  //position(pos1);
-  //delay(10);
-  //position(pos2);
-  //delay(10);
-  //for(int i = 20; i > 0; i--)
-  //{
-  //position(70+i);
-  //delay(50);
-  //position(70-i);
-  //delay(50);  
-  //position(70);
-  //delay(50);
-  //}
-  //delay(1000);
+  p.Plot();
+*/
+  position(18);
+  delay(2000);
+  position(108);
+  delay(2000);
+  /*
+  delay(100);
+  position(45);
+  position(46);
+  int rndm = random(1,40);
+  int pos1=70+rndm;
+  int pos2=70-rndm;
+  position(pos1);
+  delay(10);
+  osition(pos2);
+  delay(10);
+  for(int i = 20; i > 0; i--)
+  {
+  position(70+i);
+  delay(50);
+  position(70-i);
+  delay(50);  
+  position(70);
+  delay(50);
+  }
+  delay(1000);
+  */
 }
 
 ISR(ANALOG_COMP_vect)
