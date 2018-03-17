@@ -23,6 +23,11 @@ volatile unsigned long current_time = 0;
 volatile long previous_time = 0;
 volatile unsigned long duration;
 
+uint16_t fbuf[10];
+uint8_t fbuflen = 10;
+uint8_t i = 0;
+uint32_t average = 0;
+
 void setup() { 
   Serial.begin(115200);
 
@@ -85,16 +90,22 @@ void position(int future)
 }
 
 
-
-//float filterfq = 2;
-//FilterOnePole lowpassFilter(LOWPASS, filterfq);
-
 void loop() 
 {
   Serial.print(duration);
 //  Serial.print(",");
 //  Serial.print(1000000/(3*duration));
   Serial.print("\n");
+  
+  fbuf[i%fbuflen] = duration;
+  i++;
+  for(int k = 0; k < fbuflen; k++)
+  {
+    average += fbuf[k];
+  }
+  average = average/fbuflen;
+  Serial.print(average);
+  average = 0;
   
 //  position(1000000/(3*duration));
 }
