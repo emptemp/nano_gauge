@@ -1,7 +1,4 @@
-#include <Filters.h>
-//#include "Plotter.h"
-
-//Plotter p;
+#define initMotor   (0)
 
 const byte motorPin1 = 8;
 const byte motorPin2 = 9;
@@ -22,19 +19,14 @@ float e=2.71;
 int   current=0;
 int   pos = 0;
 
-int filtered=0;
-int val;
-
 volatile unsigned long current_time = 0;
-long previous_time = 0;
-unsigned long duration;
+volatile long previous_time = 0;
+volatile unsigned long duration;
 
 void setup() { 
   Serial.begin(115200);
-  
-  //p = Plotter();
-  //p.AddTimeGraph( "graph", 1000, "filtered", filtered, "raw duration", duration, "position", val );
-  
+
+#if defined(initMotor)    
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
@@ -44,6 +36,7 @@ void setup() {
   turn(150,1);
   //turn(30,0);
   delay(1000);
+#endif
 }
 
 void turn(int fullsteps, bool ccw)
@@ -93,51 +86,17 @@ void position(int future)
 
 
 
-float filterfq = 2;
-FilterOnePole lowpassFilter(LOWPASS, filterfq);
+//float filterfq = 2;
+//FilterOnePole lowpassFilter(LOWPASS, filterfq);
 
 void loop() 
 {
-/*
-  if ((duration > 300) && (duration < 11000))
-  {
-    filtered = lowpassFilter.input( duration );
-    if (filtered > 900) {    val = 113940/filtered; }
-    //Serial.print(duration);
-    //Serial.print("\n");
-    //Serial.print(val*1000);
-    //Serial.print("\t"); 
-    //Serial.println(filtered);
-    position(val); 
-  }
-  p.Plot();
-*/
-  position(18);
-  delay(2000);
-  position(108);
-  delay(2000);
-  /*
-  delay(100);
-  position(45);
-  position(46);
-  int rndm = random(1,40);
-  int pos1=70+rndm;
-  int pos2=70-rndm;
-  position(pos1);
-  delay(10);
-  osition(pos2);
-  delay(10);
-  for(int i = 20; i > 0; i--)
-  {
-  position(70+i);
-  delay(50);
-  position(70-i);
-  delay(50);  
-  position(70);
-  delay(50);
-  }
-  delay(1000);
-  */
+  Serial.print(duration);
+//  Serial.print(",");
+//  Serial.print(1000000/(3*duration));
+  Serial.print("\n");
+  
+//  position(1000000/(3*duration));
 }
 
 ISR(ANALOG_COMP_vect)
