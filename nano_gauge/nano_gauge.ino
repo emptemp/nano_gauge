@@ -23,21 +23,22 @@ volatile unsigned long current_time = 0;
 volatile long previous_time = 0;
 volatile unsigned long duration;
 
-uint16_t fbuf[10];
-uint8_t fbuflen = 10;
+const uint8_t fbuflen = 420;
+uint16_t fbuf[fbuflen];
 uint8_t i = 0;
 uint32_t average = 0;
+uint16_t rpm = 0;
 
 void setup() { 
   Serial.begin(115200);
-
-#if defined(initMotor)    
+  ACSR = B01011010;
+  
+#if initMotor
   pinMode(motorPin1, OUTPUT);
   pinMode(motorPin2, OUTPUT);
   pinMode(motorPin3, OUTPUT);
   pinMode(motorPin4, OUTPUT);
   pinMode(inputPin, INPUT);
-  ACSR = B01011010;
   turn(150,1);
   //turn(30,0);
   delay(1000);
@@ -80,7 +81,7 @@ void turn(int fullsteps, bool ccw)
   }
 }
 
-void position(int future)
+void position(uint16_t future)
 {
    future = future - current;
    current = current + future;
@@ -93,9 +94,7 @@ void position(int future)
 void loop() 
 {
   Serial.print(duration);
-//  Serial.print(",");
-//  Serial.print(1000000/(3*duration));
-  Serial.print("\n");
+  Serial.print(",");
   
   fbuf[i%fbuflen] = duration;
   i++;
@@ -105,9 +104,8 @@ void loop()
   }
   average = average/fbuflen;
   Serial.print(average);
-  average = 0;
-  
-//  position(1000000/(3*duration));
+  Serial.print("\n");
+  average = 0;  
 }
 
 ISR(ANALOG_COMP_vect)
