@@ -110,12 +110,10 @@ uint16_t ema()
 
 void loop() 
 {
-  noInterrupts();
   Serial.print(duration);
   Serial.print(",");
   Serial.print(sma(ema()));
   Serial.print("\n");
-  interrupts();
 }
 
 ISR(ANALOG_COMP_vect)
