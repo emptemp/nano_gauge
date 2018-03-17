@@ -1,5 +1,7 @@
 #define initMotor   (0)
 
+#define EMA_ALPHA   (10)
+
 const byte motorPin1 = 8;
 const byte motorPin2 = 9;
 const byte motorPin3 = 10;
@@ -23,7 +25,7 @@ volatile uint32_t current_time = 0;
 volatile uint32_t previous_time = 0;
 volatile uint32_t duration;
 
-const uint16_t fbuflen = 100;
+const uint16_t fbuflen = 420;
 uint16_t fbuf[fbuflen];
 uint8_t i = 0;
 
@@ -86,27 +88,38 @@ void position(int16_t future)
    else                 {  }  
 }
 
-uint16_t average()
+uint16_t sma()
 {
   uint32_t average = 0;
-  for(uint16_t k = 0; k < fbuflen; k++) {
-    average += fbuf[k];  }
+  for(uint16_t k = 0; k < fbuflen; k++)
+  {
+    average += fbuf[k];
+  }
   return average/fbuflen;
+}
+
+int ema()
+{ 
+    static uint16_t exponential_average=duration;
+    
+    exponential_average=(EMA_ALPHA*(uint32_t)duration + (100 - EMA_ALPHA)*(uint32_t)exponential_average)/100;
+    return exponential_average;
 }
 
 void loop() 
 {
-  Serial.print(duration);  
+  noInterrupts();
+  Serial.print(duration);
   Serial.print(",");
-  Serial.print(average());  
-  Serial.print("\n");  
+  Serial.print(ema());
+  Serial.print("\n");
+  interrupts();
 }
 
 ISR(ANALOG_COMP_vect)
 {
-  current_time = micros();
-  duration = current_time - previous_time;
-  previous_time = current_time;
-  fbuf[(i&0xFF)%fbuflen] = duration; i++;
-
+   current_time = micros();
+   duration = current_time - previous_time;
+   previous_time = current_time;
+   fbuf[i%fbuflen] = duration; i++;
 }
