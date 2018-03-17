@@ -23,7 +23,7 @@ volatile uint32_t current_time = 0;
 volatile uint32_t previous_time = 0;
 volatile uint32_t duration;
 
-const uint16_t fbuflen = 420;
+const uint16_t fbuflen = 100;
 uint16_t fbuf[fbuflen];
 uint8_t i = 0;
 
@@ -89,27 +89,24 @@ void position(int16_t future)
 uint16_t average()
 {
   uint32_t average = 0;
-  for(uint16_t k = 0; k < fbuflen; k++)
-  {
-    average += fbuf[k];
-  }
+  for(uint16_t k = 0; k < fbuflen; k++) {
+    average += fbuf[k];  }
   return average/fbuflen;
 }
 
 void loop() 
 {
-  noInterrupts();
-  Serial.print(duration);
+  Serial.print(duration);  
   Serial.print(",");
-  Serial.print(average());
-  Serial.print("\n");
-  interrupts();
+  Serial.print(average());  
+  Serial.print("\n");  
 }
 
 ISR(ANALOG_COMP_vect)
 {
-   current_time = micros();
-   duration = current_time - previous_time;
-   previous_time = current_time;
-   fbuf[i%fbuflen] = duration; i++;
+  current_time = micros();
+  duration = current_time - previous_time;
+  previous_time = current_time;
+  fbuf[(i&0xFF)%fbuflen] = duration; i++;
+
 }
