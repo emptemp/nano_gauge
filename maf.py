@@ -50,23 +50,23 @@ def openlog(fd):
     lines = f.readlines()
     for line in lines:
       if len(line.split(",")) == 2:
-        uftd.append(int(line.split(",")[0]))
-        ftd.append(int(line.split(",")[1]))
+        if line.split(",")[0] != '':
+          uftd.append(int(line.split(",")[0]))
+        if line.split(",")[1] != '':     
+          ftd.append(int(line.split(",")[1]))
   return uftd, ftd
 
 #print uftd
 #print ftd 
 
-uftd = openlog('log_ftd_50.txt')[0]
+plt.plot(openlog('ema2sma_1-20_2.txt')[0], label='uftd')
+plt.plot(openlog('ema2sma_1-20_2.txt')[1], label='ema->sma')
 
-
-plt.plot(openlog('log_ftd_50.txt')[0], label='uftd_50')
-plt.plot(openlog('log_ftd_50.txt')[1], label='ftd_50')
 #plt.plot(mafilter(openlog('log_ftd_50.txt')[0]), label='py_ftd')
-plt.plot(savitzky_golay(uftd, 123,2), label = 'savitzky_golay')
+#plt.plot(savitzky_golay(uftd, 123,2), label = 'savitzky_golay')
 
-#plt.plot(openlog('log_ftd_100.txt')[0], label='uftd_100')
-#plt.plot(openlog('log_ftd_100.txt')[1], label='ftd_100')
+#plt.plot(openlog('log_ftd_50.txt')[0], label='uftd_100')
+#plt.plot(openlog('log_ftd_50.txt')[1], label='ftd_100')
 
 #plt.plot(mafilter(uftd), label='py_ftd')
 #plt.plot(uftd, label='uftd')
