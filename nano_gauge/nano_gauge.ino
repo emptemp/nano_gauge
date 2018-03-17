@@ -1,6 +1,6 @@
 #define initMotor   (0)
 
-#define EMA_ALPHA   (10)
+#define EMA_ALPHA   (1)
 
 const byte motorPin1 = 8;
 const byte motorPin2 = 9;
@@ -25,7 +25,7 @@ volatile uint32_t current_time = 0;
 volatile uint32_t previous_time = 0;
 volatile uint32_t duration;
 
-const uint16_t fbuflen = 420;
+const uint16_t fbuflen = 50;
 uint16_t fbuf[fbuflen];
 uint8_t i = 0;
 
@@ -98,7 +98,7 @@ uint16_t sma()
   return average/fbuflen;
 }
 
-int ema()
+uint16_t ema()
 { 
     static uint16_t exponential_average=duration;
     
@@ -110,6 +110,8 @@ void loop()
 {
   noInterrupts();
   Serial.print(duration);
+  Serial.print(",");
+  Serial.print(sma());
   Serial.print(",");
   Serial.print(ema());
   Serial.print("\n");
