@@ -1,4 +1,4 @@
-#define initMotor   (0)
+#define initMotor   (1)
 
 
 #define FBUFLEN     (20)
@@ -110,10 +110,14 @@ uint16_t ema()
 
 void loop() 
 {
+  /*
   Serial.print(duration);
   Serial.print(",");
   Serial.print(sma(ema()));
   Serial.print("\n");
+*/
+position(120);
+
 }
 
 ISR(ANALOG_COMP_vect)
